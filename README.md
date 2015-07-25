@@ -1,7 +1,9 @@
+Forked and updated for v3 from: https://github.com/drewm/mailchimp-api
+
 MailChimp API
 =============
 
-Super-simple, minimum abstraction MailChimp API v2 wrapper, in PHP.
+Super-simple, minimum abstraction MailChimp API v3 wrapper, in PHP.
 
 I hate complex wrappers. This lets you get from the MailChimp API docs to the code as directly as possible.
 
