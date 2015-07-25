@@ -49,7 +49,7 @@ Subscribe someone to a list (updated)
 	<?php
 	$result = $MailChimp->call('lists/{listID}/members', 'POST', array(
 					'id'                => 'listID',
-					'status'						=> 'subscribed',
+					'status'            => 'subscribed',
 					'email_address'     => 'davy@example.co,
 					'merge_fields'      => array('FNAME'=>'Davy', 'LNAME'=>'Jones'),
 					'double_optin'      => false, // doesn't seem necessary in v3
