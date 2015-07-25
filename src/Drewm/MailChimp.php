@@ -68,7 +68,7 @@ class MailChimp
         $args['apikey'] = $this->api_key;
         $basic_auth = base64_encode("username:".$args['apikey']);
 
-        $url = $this->api_endpoint.'/'.$method.'.json';
+        $url = $this->api_endpoint.'/'.$method; //remove: .'.json'
         $json_data = json_encode($args);
 
         if (function_exists('curl_init') && function_exists('curl_setopt')) {
