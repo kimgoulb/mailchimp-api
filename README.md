@@ -33,18 +33,29 @@ List lists (lists/list method)
 	$MailChimp = new \Drewm\MailChimp('abc123abc123abc123abc123abc123-us1');
 	print_r($MailChimp->call('lists/list'));
 
-Subscribe someone to a list
+Init (updated)
 
 	<?php
 	$MailChimp = new \Drewm\MailChimp('abc123abc123abc123abc123abc123-us1');
-	$result = $MailChimp->call('lists/subscribe', array(
-					'id'                => 'b1234346',
-					'email'             => array('email'=>'davy@example.com'),
-					'merge_vars'        => array('FNAME'=>'Davy', 'LNAME'=>'Jones'),
-					'double_optin'      => false,
-					'update_existing'   => true,
-					'replace_interests' => false,
-					'send_welcome'      => false,
+
+Get subscribers (updated)
+	
+	<?php
+	$result = $MailChimp->call('lists/{listID}/members', 'GET');
+	print_r($result);
+
+Subscribe someone to a list (updated)
+
+	<?php
+	$result = $MailChimp->call('lists/{listID}/members', 'POST', array(
+					'id'                => 'listID',
+					'status'						=> 'subscribed',
+					'email_address'     => 'davy@example.co,
+					'merge_fields'      => array('FNAME'=>'Davy', 'LNAME'=>'Jones'),
+					'double_optin'      => false, // doesn't seem necessary in v3
+					'update_existing'   => true, // doesn't seem necessary in v3
+					'replace_interests' => false, // doesn't seem necessary in v3
+					'send_welcome'      => false, // doesn't seem necessary in v3
 				));
 	print_r($result);
 

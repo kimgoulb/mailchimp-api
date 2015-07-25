@@ -42,23 +42,28 @@ class MailChimp
     }
 
     /**
-     * Call an API method. Every request needs the API key, so that is added automatically -- you don't need to pass it in.
+     * Call an API POST method. Every request needs the API key, so that is added automatically -- you don't need to pass it in.
      * @param  string $method The API method to call, e.g. 'lists/list'
+     * @param  string $type GET or POST currently supported
      * @param  array  $args   An array of arguments to pass to the method. Will be json-encoded for you.
      * @return array          Associative array of json decoded API response.
      */
-    public function call($method, $args = array(), $timeout = 10)
-    {
-        return $this->makeRequest($method, $args, $timeout);
+    public function call($method, $type = 'GET', $args = array(), $timeout = 10)
+    {   
+        if ($type === 'POST'){
+            return $this->postRequest($method, $args, $timeout);
+        } else {
+            return $this->getRequest($method, $args, $timeout);
+        }
     }
 
     /**
-     * Performs the underlying HTTP request. Not very exciting
+     * Performs the underlying HTTP POST request. Not very exciting
      * @param  string $method The API method to be called
      * @param  array  $args   Assoc array of parameters to be passed
      * @return array          Assoc array of decoded result
      */
-    private function makeRequest($method, $args = array(), $timeout = 10)
+    private function postRequest($method, $args = array(), $timeout = 10)
     {
         $args['apikey'] = $this->api_key;
         $basic_auth = base64_encode("username:".$args['apikey']);
@@ -77,6 +82,48 @@ class MailChimp
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verify_ssl);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
             curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+            $result = curl_exec($ch);
+            curl_close($ch);
+        } else {
+            $result    = file_get_contents($url, null, stream_context_create(array(
+                'http' => array(
+                    'protocol_version' => 1.1,
+                    'user_agent'       => 'PHP-MCAPI/2.0',
+                    'method'           => 'POST',
+                    'header'           => "Content-type: application/json\r\n".
+                                          "Connection: close\r\n" .
+                                          "Content-length: " . strlen($json_data) . "\r\n".
+                                          "Authorization: Basic ".$basic_auth,
+                    'content'          => $json_data,
+                ),
+            )));
+        }
+
+        return $result ? json_decode($result, true) : false;
+    }
+
+    // -- ADDED BY kimgoulb -- //
+
+    /**
+     * Performs the underlying HTTP GET request. Not very exciting
+     * @param  string $method The API method to be called
+     * @param  array  $args   Assoc array of parameters to be passed
+     * @return array          Assoc array of decoded result
+     */
+    private function getRequest($method, $args = array(), $timeout = 10)
+    {
+        $args['apikey'] = $this->api_key;
+        $basic_auth = base64_encode("username:".$args['apikey']);
+
+        $url = $this->api_endpoint.'/'.$method; //remove: .'.json'
+        $json_data = json_encode($args);
+
+        if (function_exists('curl_init') && function_exists('curl_setopt')) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Basic '.$basic_auth ) );
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $result = curl_exec($ch);
             curl_close($ch);
         } else {
