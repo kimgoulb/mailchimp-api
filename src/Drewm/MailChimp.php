@@ -61,6 +61,7 @@ class MailChimp
     private function makeRequest($method, $args = array(), $timeout = 10)
     {
         $args['apikey'] = $this->api_key;
+        $basic_auth = base64_encode("username:".$args['apikey']);
 
         $url = $this->api_endpoint.'/'.$method.'.json';
         $json_data = json_encode($args);
@@ -68,7 +69,7 @@ class MailChimp
         if (function_exists('curl_init') && function_exists('curl_setopt')) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Basic '.$basic_auth));
             curl_setopt($ch, CURLOPT_USERAGENT, 'PHP-MCAPI/2.0');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
@@ -86,7 +87,8 @@ class MailChimp
                     'method'           => 'POST',
                     'header'           => "Content-type: application/json\r\n".
                                           "Connection: close\r\n" .
-                                          "Content-length: " . strlen($json_data) . "\r\n",
+                                          "Content-length: " . strlen($json_data) . "\r\n".
+                                          "Authorization: Basic ".$basic_auth,
                     'content'          => $json_data,
                 ),
             )));
